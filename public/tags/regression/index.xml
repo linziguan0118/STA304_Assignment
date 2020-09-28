@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>regression on A Hugo website</title>
+    <link>/tags/regression/</link>
+    <description>Recent content in regression on A Hugo website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 23 Jul 2015 21:13:14 -0500</lastBuildDate><atom:link href="/tags/regression/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Time(month) and location effects on the number of deaths in four of the civic centers</title>
+      <link>/2015/07/23/timemonth-and-location-effects-on-the-number-of-deaths-in-four-of-the-civic-centers/</link>
+      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
+      
+      <guid>/2015/07/23/timemonth-and-location-effects-on-the-number-of-deaths-in-four-of-the-civic-centers/</guid>
+      <description>Abstract With the interest in the time(month) and location effect on the number of deaths, this paper analyses the Death Registry Statistics from Toronto Data sets datastore, and mainly analyses the documented numbers of deaths by Registry Services staff located in four of the civic centres including Scarborough, North York, Toronto and Etobicoke. Through the numerical and vitual analysis, there tend to be more deaths on average in Scarborough and more average deaths in January.</description>
+    </item>
+    
+  </channel>
+</rss>

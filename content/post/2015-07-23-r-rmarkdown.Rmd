@@ -1,0 +1,232 @@
+---
+title: "Time(month) and location effects on the number of deaths in four of the civic centers"
+author: "Linzi Guan"
+date: 2015-07-23T21:13:14-05:00
+categories: ["R"]
+tags: ["R Markdown", "plot", "regression"]
+---
+
+```{r setup, include = FALSE, echo=FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("opendatatoronto")
+library(opendatatoronto)
+library(dplyr)
+library(tidyverse)
+```
+
+# Abstract
+
+With the interest in the time(month) and location effect on the number of deaths, this paper analyses the Death Registry Statistics from Toronto Data sets datastore, and mainly analyses the documented numbers of deaths by Registry Services staff located in four of the civic centres including Scarborough, North York, Toronto and Etobicoke. Through the numerical and vitual analysis, there tend to be more deaths on average in Scarborough and more average deaths in January.
+
+# Introduction
+
+People are often wondering whether time(month) and location would have effects on the number of deaths or not, the paper mainly analyses the documented numbers of deaths by Registry Services staff located in four of the civic centres including Scarborough, North York, Toronto and Etobicoke. According to the numerical and vitual analysis, there tend to be more deaths on average in Scarborough and more average deaths in January. 
+
+The paper starts from loading and overviewing the dataset from Toronto Data sets datastore. The Death Registry Statistics have 5 variables in total including the unique id for Open Data Database, the code of civic center, the number of deaths registered in each month, the place of death and the time period. Then an overall view of the number of deaths registered each month is conducted both numerically and visually. After that the number of deaths documented per month is analysed through location and time segmentation. Based on the graphs and analysis, Scarborough has the largest spread and average number of deaths and January has the highest number of deaths in a month period. 
+
+There are some limitations in the findings. Firstly, the number of deaths is singly documented in the dataset with no repect to the actual population of civic centres, which makes the comparision unfair. Also, the documented deaths could not completely represent the actual total deaths as there might be some unrecorded deaths having taken place. Therefore, further studies should refer more to the true population. Overall, this paper is structured to generally introduce the topic, specific findings, reflections of the data and an outlook into the future first. Then the data is described in detail with the variables and graphs are presented and interpreted. Finally, discussion on weaknesses and limitations are conducted and references are provided.
+
+# Data
+
+This dataset is called the Death Registry Statistics and is downloaded from Open Data Toronto. Including information about the registration of deaths documented by Registry Services staff located in four of the civic centres(Scarborough, North York, Toronto and Etobicoke), the dataset aggregates statistical information from the registration of death data entered into the Registry Services Tracking System(RSTS). The dataset resides in an Oracle database in the City's environment and is created to support the Vital Statistics Act, which is a Provincial legislation. The dataset is also used to support the City's operational requirements and business functions.
+
+The dataset contains five variables including _id(Unique row identifier for Open Data database), CIVIC_CENTRE(Civic centre code), DEATH_LICENSES(Number of deaths registered in the month),	PLACE_OF_DEATH(Place where death occurred), and TIME_PERIOD(Month death registered). The variables we focus on are civic centres, number of deaths registered in the month and month death registered. 
+
+### Overview of data
+
+The following is a brief overview of the dataset with 5 variables and 716 cases where _ids are unique integars, civic_centres are characters representing four civic centres with "ET" representing Etobicoke, "NY" representing North York, "TO" representing Toronto and "SC" representing Scarborough, death_licenses are integars, place_of_death is character representing outside city limits or within toronto and time_periods stand for year and month. 
+```{r, include = FALSE, echo=FALSE, warning = FALSE, message=FALSE}
+# get package
+package <- show_package("cba07a90-984b-42d2-9131-701c8c2a9788")
+package
+
+# get all resources for this package
+resources <- list_package_resources("cba07a90-984b-42d2-9131-701c8c2a9788")
+
+# identify datastore resources; by default, Toronto Open Data sets datastore resource format to CSV for non-geospatial and GeoJSON for geospatial resources
+datastore_resources <- filter(resources, tolower(format) %in% c('csv', 'geojson'))
+
+# load the first datastore resource as a sample
+data <- filter(datastore_resources, row_number()==1) %>% get_resource()
+data
+```
+
+```{r, include = TRUE, echo=FALSE, warning = FALSE, message=FALSE}
+str(data)
+```
+
+### Numerical analysis on the centre of the number of deaths documented per month. 
+
+Here is a summary of the number of deaths documented per month. 
+```{r,include = TRUE, echo=FALSE, warning = FALSE, message=FALSE }
+summary(data$DEATH_LICENSES)
+```
+The mean is 241.6 and median is 183.5 deaths documented per month. 
+
+### Visual analysis on the distribution of the number of deaths documented per month. 
+
+#### Histogram
+```{r,include = TRUE, echo=FALSE, warning = FALSE, message=FALSE}
+histogram_deathlicences <- ggplot(data,aes(DEATH_LICENSES)) + geom_histogram(position="identity",bins=30,fill = "white", color = "black") +
+  labs(x = "The number of death documented each month",
+       y = "Frequency",
+       title = "Distribution of number of death documented per month in Death Registry Statistics",
+       caption = "Source: Opendatatoronto, Toronto Data sets datastore") +
+  theme_bw()
+histogram_deathlicences
+```
+
+The histogram shows that the distribution of the number of deaths documented per month is strong positively skewed. 
+
+#### Boxplot
+```{r,include = TRUE, echo=FALSE, warning = FALSE, message=FALSE}
+boxplot_deathlicences <- ggplot(data,aes(DEATH_LICENSES)) + geom_boxplot(fill = "white", color = "black") +
+  labs(x = "The number of death documented each month",
+       title = "Boxplot of number of death documented per month in Death Registry Statistics",
+       caption = "Source: Opendatatoronto, Toronto Data sets datastore") +
+  theme_bw()
+boxplot_deathlicences
+```
+
+The boxplot shows that the distribution of the number of deaths documented per month is positively skewed with a longer whisker to the right of the mean and there is an outlier of close to 1500 deaths documented in one month. 
+
+### Location segmentation
+
+#### Boxplot of number of death documented per month in each civic centre
+```{r,include = TRUE, echo=FALSE, warning = FALSE, message=FALSE}
+ggplot(data, aes(x=CIVIC_CENTRE, y=DEATH_LICENSES,fill=CIVIC_CENTRE)) +geom_boxplot()+
+  labs(x = "Civic centre",
+       y = "The number of death documented each month",
+       title = "Boxplot of number of death documented per month in each civic centre",
+       caption = "Source: Opendatatoronto, Toronto Data sets datastore") +
+  theme_bw()
+```
+
+The graph shows that the numbers of death documented of all of the four civic centres follow positive skewed distributions. Scarborough has the largest spread and highest mean of number of death documented and there is one outlier of close to 1500 deaths within one month. 
+
+
+```{r,include = FALSE, echo=FALSE, warning = FALSE, message=FALSE}
+death_Location <- data.frame(Death_licences=data$DEATH_LICENSES, Locations = data$CIVIC_CENTRE)
+Etobicoke <- filter(data,CIVIC_CENTRE=="ET")
+Etobicoke_Death <- mean(Etobicoke$DEATH_LICENSES)
+NorthYork <- filter(data,CIVIC_CENTRE=="NY")
+NorthYork_Death <- mean(NorthYork$DEATH_LICENSES)
+Scarborough <- filter(data,CIVIC_CENTRE=="SC")
+Scarborough_Death <- mean(Scarborough$DEATH_LICENSES)
+Toronto <- filter(data,CIVIC_CENTRE=="TO")
+Toronto_Death <- mean(Toronto$DEATH_LICENSES)
+```
+
+```{r,include = FALSE, echo=FALSE, warning = FALSE, message=FALSE}
+location_list <- c("ET", "NY", "SC", "TO")
+average_death_list_l <- c(Etobicoke_Death, NorthYork_Death,Scarborough_Death, Toronto_Death )
+death_location <- data_frame(location = location_list,Average_death_location = average_death_list_l)
+```
+
+#### Barplot of average number of death documented per month in each civic centre
+```{r,include = TRUE, echo=FALSE, warning = FALSE, message=FALSE}
+ggplot(death_location, aes(y=Average_death_location, x=location, fill = Average_death_location)) + 
+    geom_bar(position="stack", stat="identity")+
+  labs(x = "Civic centre",
+       y = "The average number of death documented each month",
+       title = "Barplot of average number of death documented per month in each civic centre",
+       caption = "Source: Opendatatoronto, Toronto Data sets datastore") +
+  theme_bw()
+```
+
+From further analysis of the average number of death documented per month, we can find Scarbough has the highest death on average and Toronto has the lowest death. 
+
+### Time(Month) segmentation
+
+#### Boxplot of average number of death documented in each month
+```{r,include = TRUE, echo=FALSE, warning = FALSE, message=FALSE}
+Month <- substr(data$TIME_PERIOD,6,7)
+death_m <- data.frame(data, Month)
+ggplot(data, aes(x=Month, y=DEATH_LICENSES, fill=Month)) +geom_boxplot()+
+  labs(x = "Month",
+       y = "The number of death documented in one month",
+       title = "Boxplot of the number of death documented in each month",
+       caption = "Source: Opendatatoronto, Toronto Data sets datastore") +
+  theme_bw()
+```
+
+The graph shows that the number of death documented in each month follows a positively skewed distribution and January has the largest spread and highest mean. 
+
+```{r,include = FALSE, echo=FALSE, warning = FALSE, message=FALSE}
+death_month <- data_frame(Death_licenses = death_m$DEATH_LICENSES, Month = death_m$Month)
+January <- filter(death_month,Month == "01")
+January_Death <- mean(January$Death_licenses)
+February <- filter(death_month,Month == "02")
+February_Death <- mean(February$Death_licenses)
+March <- filter(death_month,Month == "03")
+March_Death <- mean(March$Death_licenses)
+April <- filter(death_month,Month == "04")
+April_Death <- mean(April$Death_licenses)
+May <- filter(death_month,Month == "05")
+May_Death <- mean(May$Death_licenses)
+June <- filter(death_month,Month == "06")
+June_Death <- mean(June$Death_licenses)
+July <- filter(death_month,Month == "07")
+July_Death <- mean(July$Death_licenses)
+August <- filter(death_month,Month == "08")
+August_Death <- mean(August$Death_licenses)
+September <- filter(death_month,Month == "09")
+September_Death <- mean(September$Death_licenses)
+October <- filter(death_month,Month == "10")
+October_Death <- mean(October$Death_licenses)
+November <- filter(death_month,Month == "11")
+November_Death <- mean(November$Death_licenses)
+December <- filter(death_month,Month == "12")
+December_Death <- mean(December$Death_licenses)
+```
+
+#### Boxplot of average number of death documented in each month
+```{r,include = TRUE, echo=FALSE, warning = FALSE, message=FALSE}
+month_list <- c("01_Jan","02_Feb","03_Mar","04_Apr","05_May","06_Jun","07_Jul","08_Aug","09_Sep","10_Oct","11_Nov","12_Dec")
+average_death_list <- c(January_Death,February_Death,March_Death,April_Death,May_Death,June_Death,July_Death, August_Death,September_Death,October_Death,November_Death,December_Death)
+death_month <- data_frame(Month = month_list,Average_death = average_death_list)
+ggplot(death_month, aes(y=Average_death, x=Month, fill = Average_death)) + 
+    geom_bar(position="stack", stat="identity")+
+  labs(x = "Month",
+       y = "The average number of death documented in one month",
+       title = "Boxplot of average number of death documented in each month",
+       caption = "Source: Opendatatoronto, Toronto Data sets datastore") +
+  theme_bw()
+```
+
+The graph shows that January has the highest average number of death documented compared with the other 11 months. 
+
+# Discussion
+
+## Main findings of the graphs:
+
+The number of death documented in each month is analysed both numerically and visually. Numerically, a summary of the number of deaths is provided with a mean of 241.6 deaths and median of 183.5 deaths in a month. Visually, a histogram is conducted to show the number of deaths documented each month follows a strong positively skewed distribution. Also, a boxplot proves the positive skewness with a longer whisker to the right of the mean and the boxplot shows there exists an outlier with around 1500 deaths in the civic centre within a month. 
+
+In terms of location segmentation, a boxplot showing the spread of the number of deaths per month separately in the four civic centres and a barplot comparing the different means of death number documented per month in those four civic centers are provided. Similarly, a boxplot showing the spread of the number of deaths per month separately in the twelve months and a barplot comparing the different means of death number documented per month in 12 different months are provided. Therefore, the overall findings would be Scarborough has the most deaths on average per month and January is the month when there are most deaths on average.
+
+## Weaknesses and next steps
+
+There are several weaknesses and limitations in this paper which can be improved in next steps. 
+
+Firstly, the number of deaths should be refered to the actual population of civic centres when comparing the number of deaths in different civic centres. If there is an actually larger population in Scarbough, then it makes sense that Scarbough has more deaths than the other civic centres. Therefore, in further studies, comparing to only use the number of deaths, the death rate out of the true population should be considered. 
+
+Also, the documented deaths are not completely representative enough for the actual total deaths as there might be some deaths that are unrecorded. And the time period registered for death might not be the true death time because of some related problems. Further analysis should be conducted according to the true death rate of people.
+
+# Reference
+```{r,include = FALSE, echo=FALSE, message=FALSE}
+citation("opendatatoronto")
+citation("dplyr")
+citation("tidyverse")
+```
+
+Sharla Gelfand (2020). opendatatoronto: Access the City of Toronto Open Data Portal. R package
+  version 0.1.3. https://CRAN.R-project.org/package=opendatatoronto
+  
+Hadley Wickham, Romain François, Lionel Henry and Kirill Müller (2020). dplyr: A Grammar of Data
+  Manipulation. R package version 1.0.2. https://CRAN.R-project.org/package=dplyr
+  
+Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686,
+  https://doi.org/10.21105/joss.01686
+
+
+
